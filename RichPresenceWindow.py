@@ -3,15 +3,20 @@ import tkinter as tk
 from tkinter import filedialog
 import Modules.Pages as Pages
 
+import webbrowser
+
 WIDTH = 400
 HEIGHT = 400
+APPNAME = "Max's Rich Presence"
+ABOUT_URL = "https://github.com/Maxxxxz/d2-rich-presence/blob/master/README.md"
+REPO_URL = "https://github.com/Maxxxxz/d2-rich-presence"
 
 class Application(tk.Frame):
 
     selectedFiles = []
 
     def __init__(self, master=None):
-        master.title("Template")                                  #change title here
+        master.title("{}".format(APPNAME))                                  #change title here
         master.geometry("{}x{}".format(WIDTH, HEIGHT))            #change window size here
         master.resizable(width=False, height=False)               #resizable?
         tk.Frame.__init__(self, master, relief=tk.GROOVE)
@@ -35,41 +40,40 @@ class Application(tk.Frame):
 
         master.config(menu=self.menubar)
 
-        self.bind_all("<Control-Key-0>", self.pages[0].show)    # main menu
-        self.bind_all("<Control-Key-1>", self.pages[1].show)    # Page 2
+        # self.bind_all("<Control-Key-0>", self.pages[0].show)    # main menu
+        # self.bind_all("<Control-Key-1>", self.pages[1].show)    # Page 2
+
+        self.bind_all("<Control-Key-w>", lambda _: self.master.quit())    # Quit Application
 
     def addMenus(self, menus=None):  #add menu items here
 
         self.menus.append(tk.Menu(self.menubar, tearoff=0))
 
         self.menubar.add_cascade(label="File", menu=menus[0])
-        menus[0].add_command(label="Open", command=self.openFiles)
-        menus[0].add_command(label="DEBUG|Print Open Files", command=lambda: print(self.selectedFiles))
-        menus[0].add_command(label="Clear Selections", command=self.clearSelections)
-        menus[0].add_separator()
+
         menus[0].add_command(label="Exit", command=self.master.quit)
 
-        menus.append(tk.Menu(self.menubar, tearoff=0))  # create dropdown menu View
+        self.menus.append(tk.Menu(self.menubar, tearoff=0))
 
-        self.menubar.add_cascade(label="Pages", underline=0, menu=menus[1])
-        menus[1].add_command(label="Main Menu", command=self.pages[0].lift, accelerator="Control+0")
-        menus[1].add_command(label="Page 1", command=self.pages[1].lift, accelerator="Control+1")
+        self.menubar.add_cascade(label="Help", menu=menus[1])
+        menus[1].add_command(label="About", command=lambda: webbrowser.open(ABOUT_URL))
+        menus[1].add_command(label="View the repo", command=lambda: webbrowser.open(REPO_URL))
+
+        # menus.append(tk.Menu(self.menubar, tearoff=0))  # create dropdown menu View
+
+        # self.menubar.add_cascade(label="Pages", underline=0, menu=menus[1])
+        # menus[1].add_command(label="Main Menu", command=self.pages[0].lift, accelerator="Control+0")
+        # menus[1].add_command(label="Page 1", command=self.pages[1].lift, accelerator="Control+1")
+
+        # self.menus.append(tk.Menu(self.menubar, tearoff=0))
+
+
 
     def clearSelections(self):
         self.selectedFiles.clear()
 
     def addContent(self, contentFrame=None):                        #add content to contentFrame here
         self.pages.append(Pages.Menu(WIDTH))
-        self.pages.append(Pages.Page2(WIDTH))
-        # self.lb = tk.Listbox(contentFrame, width=30)
-        # self.lb.pack(anchor=tk.CENTER)
-
-    def openFiles(self):                                            #change filedialog config as needed
-        self.selectedFiles += filedialog.askopenfilenames(initialdir="Documents", title="Select Files", filetypes=(("Python Files","*.py"),("All Files","*.*")))
-        # #updating list inside contentFrame
-        # list = self.contentFrame.winfo_children()
-        # if isinstance(list[0], tk.Listbox):
-        #     list[0].insert(tk.END, self.selectedFiles)
 
 def handleArgs():
     pass
