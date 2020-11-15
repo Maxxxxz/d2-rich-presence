@@ -10,11 +10,5 @@ class Page(tk.Frame):
 class Menu(Page):
     def __init__(self, w):
         Page.__init__(self)
-        label = tk.Label(self, text="Python Template Window")
+        label = tk.Label(self, text="Max's Destiny 2 Rich Presence App")
         label.place(x=(w/2), y=25, anchor="center")  # Place label at top of screen
-
-class Page2(Page):
-    def __init__(self, w):
-        Page.__init__(self)
-        label = tk.Label(self, text="Page 1")
-        label.place(x=(w/2), y=25, anchor="center")
