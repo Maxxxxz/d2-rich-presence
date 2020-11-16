@@ -2,6 +2,7 @@ import sys
 import tkinter as tk
 from tkinter import filedialog
 import Modules.Pages as Pages
+import Modules.presence as prz
 
 import webbrowser
 
@@ -20,6 +21,7 @@ class Application(tk.Frame):
         master.geometry("{}x{}".format(WIDTH, HEIGHT))            #change window size here
         master.resizable(width=False, height=False)               #resizable?
         tk.Frame.__init__(self, master, relief=tk.GROOVE)
+        
         self.menubar = tk.Menu(self)
 
         self.contentFrame = tk.Frame(master, width=100, height=100)
@@ -73,7 +75,8 @@ class Application(tk.Frame):
         self.selectedFiles.clear()
 
     def addContent(self, contentFrame=None):                        #add content to contentFrame here
-        self.pages.append(Pages.Menu(WIDTH))
+        self.RPC = prz.D2Presence()
+        self.pages.append(Pages.Menu(WIDTH, self.RPC))
 
 def handleArgs():
     pass
