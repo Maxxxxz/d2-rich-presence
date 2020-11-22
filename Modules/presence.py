@@ -111,7 +111,15 @@ class D2Presence:
         #     print(x)
         # print(j1["Response"]["jsonWorldComponentContentPaths"]["en"]['DestinyDestinationDefinition'])
         # self.hashes = hashes.json()
+        
+        # tt = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]).json()
+
+        # print(self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"])
+        # with open('t.json', 'w') as out:
+        #     json.dump(self.manifest["Response"], out)
+
         self.activity_hashes = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyActivityDefinition"]).json()
+        # self.mode_type = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyActivityModeTypeDefinition"]).json()
         self.destin_hashes = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyPlaceDefinition"]).json()
         self.activity_type_hashes = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyActivityTypeDefinition"]).json()
 
@@ -163,57 +171,80 @@ class D2Presence:
 
         act = "null"
         act_type = "null"
-
-        # todo
-        # get place hash
-        # get destination hash
-        # change how rich presence is done with playlist activities
+        pl_act = "null"
+        pl_act_hash = "null"
 
         timestamps = {}
         tempjson = injson['Response']["characterActivities"]["data"]
-        # print(tempjson["currentActivityHash"])
+
         for x in tempjson:
             timestamps[x] = tempjson[x]['dateActivityStarted']
 
-        # for x in timestamps:
-        #     print(timestamps[x])
-
-        # print(timestamps)
-
         # ENDED HERE: trying to find the current activity has to then translate into the name of activity
-
-        # for x in tempjson:
-        #     print(x)
 
         currentjson = tempjson[max(timestamps, key=lambda key: timestamps[key])]
 
+        # currentjson = json.load(open("testdata/privatecrucible.json",))
+
+        with open('t.json', 'w') as out:
+            json.dump(currentjson, out)
+
         activity_hash = currentjson["currentActivityHash"]
+
+        # If it is a playlist activity, this will not be null
+        playlist_activity_hash = None
+        
+        try:
+            playlist_activity_hash = currentjson["currentPlaylistActivityHash"]
+        except:
+            pass
         
         # activity_hash = tempjson["currentActivityModeHash"]
-        current_mode_hash = currentjson["currentActivityModeHash"]
-        current_mode_type = currentjson["currentActivityModeType"]
 
-        print(activity_hash)
-        print(current_mode_hash)
-        print(current_mode_type)
+        # What does this do?
+        current_mode_hash = currentjson["currentActivityModeHash"]
+
+        # Playlist activity (nullable)
+        current_mode_type = None
+        try:
+            current_mode_type = currentjson["currentActivityModeType"]
+        except:
+            pass
+
+        if current_mode_type:
+            print("epic")
+
+        print("activity hash = " + str(activity_hash))
+        print("current mode hash = " + str(current_mode_hash))
+        print("current mode type = " + str(current_mode_type))
+        print("playlist activity hash = " + str(playlist_activity_hash))
 
         for x in self.activity_type_hashes:
             if str(x) == str(current_mode_hash):
-                print("match on type!")
+                # print("match on type!")
                 # print(self.activity_type_hashes[x]['displayProperties']['name'])
                 act_type = self.activity_type_hashes[x]['displayProperties']['name']
 
 
         for x in self.activity_hashes:
             if str(x) == str(activity_hash):
-                print("match on activity!")
+                # print("match on activity!")
                 # print(self.activity_hashes[x]['displayProperties']['name'])
                 act = self.activity_hashes[x]['displayProperties']['name']
 
-        # for x in self.:
-        #     if str(x) == str(activity_hash):
-        #         print("match!")
-        #         print(self.activity_hashes[x]['displayProperties']['name'])
+        for x in self.activity_hashes:
+            if str(x) == str(playlist_activity_hash):
+                # print("match on playlist activity hash!")
+                # print(self.activity_hashes[x]['displayProperties']['name'])
+                pl_act = self.activity_hashes[x]['displayProperties']['name']
+
+        # print(modeTypes(current_mode_type).name)
+        pl_act_hash = modeTypes(current_mode_type).name
+
+        # for x in self.mode_type:
+        #     if str(x) == str(current_mode_type):
+        #         print("match on current mode type!")
+        #         print(self.mode_type[x]['displayProperties']['name'])
 
         # print(self.activity_type_hashes[current_mode_hash]['name'])
         # print(self.activity_hashes[current_mode_type])
@@ -221,12 +252,62 @@ class D2Presence:
         # print(activity_hash)
         # print(self.activity_hashes[activity_hash])
 
+        print("act = " + str(act))
+        print("act_type = " + str(act_type))
+        print("pl_act = " + str(pl_act))
+        print("pl_act_hash = " + str(pl_act_hash))
+
+        # data = ["details", "state", "Location - sublocation", "gender class - Season Pass level x"]
+        
+        if pl_act_hash != modeTypes.NULL:
+            data1 = str(pl_act_hash)
+        elif act_type == "null" or act_type == "":
+            data1 = "Orbit"
+        else:
+            data1 = str(act_type)
+        
+        data2 = ""
+        # We do some stuff here with last wish because of a presumably unimplemented prestige mode.
+        if act.startswith("Last Wish"):
+            data2 = "Last Wish"
+        elif act == "null" or act == "":
+            data2 = "In Orbit"
+        else:
+            data2 = act
+        # if playlist activity do other stuff
+        data3 = "33"
+        data4 = "44"
+        data5 = "4"
+        data6 = "6"
+
+
+        if(str(act) == "Deep Stone Crypt"):
+            data1 = "Raid"
+
+
+        # get location and sublocation here
+
+        data3 = "Location" + " - " + "sublocation"
+
+        # get player's charater info here
+
+        data4 = "gender" + " " + "class" + " - " + "Season Pass Level " + "##"
+
+
         dataToReturn = [
-            act,  # State
-            act_type,      # Details
-            "ta",
-            "ab",
-            "ba",
+            # str(act),  # State
+            # str(act_type),      # Details
+            # "act",
+            # "act_type",
+            data1,
+            data2,
+            # "large image",
+            # "small image",
+            data3,
+            data4,
+            # maybe have some fireteam size info here?
+            data5,
+            data6,
         ]
 
         # print(tempjson[dataToReturn[0]])
@@ -258,11 +339,13 @@ class D2Presence:
         state=details[1],
         start=time.time(),
         large_text=details[2],
-        large_image=self.getLargeImage(details),
+        large_image=self.getLargeImage(details[2]),
         small_text=details[3],
-        small_image=self.getSmallImage(details),
-        # join="join me",
-        match="match test",
+        small_image=self.getSmallImage(details[3]),
+        # party_id="00",  # can't initiate a join
+        party_size=[int(details[4]),int(details[5])],
+        # join="",
+        # match="match test",
         )
 
     def getSmallImage(self, data):
@@ -275,6 +358,4 @@ class D2Presence:
 
 
     def test(self):
-        t = requests.get(
-            BASE_URL + ""
-        )
+        print("test")
