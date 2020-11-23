@@ -1,6 +1,7 @@
 from pypresence import Presence
 from enum import Enum
 import time
+from datetime import datetime
 import requests
 import json
 import operator
@@ -186,8 +187,8 @@ class D2Presence:
 
         # currentjson = json.load(open("testdata/privatecrucible.json",))
 
-        with open('t.json', 'w') as out:
-            json.dump(currentjson, out)
+        # with open('t.json', 'w') as out:
+        #     json.dump(currentjson, out)
 
         activity_hash = currentjson["currentActivityHash"]
 
@@ -239,7 +240,7 @@ class D2Presence:
                 pl_act = self.activity_hashes[x]['displayProperties']['name']
 
         # print(modeTypes(current_mode_type).name)
-        pl_act_hash = modeTypes(current_mode_type).name
+        pl_act_hash = str(modeTypes(current_mode_type).name)
 
         # for x in self.mode_type:
         #     if str(x) == str(current_mode_type):
@@ -259,7 +260,7 @@ class D2Presence:
 
         # data = ["details", "state", "Location - sublocation", "gender class - Season Pass level x"]
         
-        if pl_act_hash != modeTypes.NULL:
+        if pl_act_hash != "NULL":
             data1 = str(pl_act_hash)
         elif act_type == "null" or act_type == "":
             data1 = "Orbit"
@@ -277,9 +278,15 @@ class D2Presence:
         # if playlist activity do other stuff
         data3 = "33"
         data4 = "44"
+        # The number of players in the fireteam/total fireteam size
         data5 = "4"
         data6 = "6"
-
+        # The time the activity started
+        data7 = time.time()
+        if "dateActivityStarted" in currentjson:
+            date = currentjson["dateActivityStarted"]
+            data7 = datetime_zero_to_local(datetime.strptime(date, "%Y-%m-%dT%H:%M:%SZ")).timestamp()
+            print(data7)
 
         if(str(act) == "Deep Stone Crypt"):
             data1 = "Raid"
@@ -287,10 +294,14 @@ class D2Presence:
 
         # get location and sublocation here
 
-        data3 = "Location" + " - " + "sublocation"
+        if data2 == "In Orbit":
+            data3 = "Patrolling Space"
+        else:
+            data3 = "Location" + " - " + "sublocation"
 
         # get player's charater info here
-
+        # https://github.com/Bungie-net/api/issues/225 can find stuff here
+        # find most recent "datelastplayed" for current player
         data4 = "gender" + " " + "class" + " - " + "Season Pass Level " + "##"
 
 
@@ -308,6 +319,7 @@ class D2Presence:
             # maybe have some fireteam size info here?
             data5,
             data6,
+            data7,
         ]
 
         # print(tempjson[dataToReturn[0]])
@@ -337,7 +349,8 @@ class D2Presence:
         self.RPC.update(
         details=details[0],
         state=details[1],
-        start=time.time(),
+        # start=time.time(),
+        start=int(details[6]),
         large_text=details[2],
         large_image=self.getLargeImage(details[2]),
         small_text=details[3],
@@ -359,3 +372,8 @@ class D2Presence:
 
     def test(self):
         print("test")
+
+def datetime_zero_to_local(zero_datetime):
+    now = time.time()
+    offset = datetime.fromtimestamp(now) - datetime.utcfromtimestamp(now)
+    return zero_datetime + offset
