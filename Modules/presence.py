@@ -19,6 +19,22 @@ memID = "4611686018483845808"
 charID = 0
 my_header = {"X-API-Key": API_KEY}
 
+class raceTypes(Enum):
+    Human = 0
+    Awoken = 1
+    Exo = 2
+    Unknown = 3
+
+class genderTypes(Enum):
+    Male = 0
+    Female = 1
+    Unknown = 2
+
+class classTypes(Enum):
+    Titan = 0
+    Hunter = 1
+    Warlock = 2
+    Unknown = 3
 
 class modeTypes(Enum):
     NULL = None
@@ -170,6 +186,9 @@ class D2Presence:
 
     def getLatestActivity(self, injson):
 
+        # Get the currently played character
+        self.getCurrentCharacter()
+
         act = "null"
         act_type = "null"
         pl_act = "null"
@@ -181,11 +200,9 @@ class D2Presence:
         for x in tempjson:
             timestamps[x] = tempjson[x]['dateActivityStarted']
 
-        # ENDED HERE: trying to find the current activity has to then translate into the name of activity
+        # currentjson = tempjson[max(timestamps, key=lambda key: timestamps[key])]
 
-        currentjson = tempjson[max(timestamps, key=lambda key: timestamps[key])]
-
-        # currentjson = json.load(open("testdata/privatecrucible.json",))
+        currentjson = json.load(open("testdata/privatecrucible.json",))
 
         # with open('t.json', 'w') as out:
         #     json.dump(currentjson, out)
@@ -291,19 +308,16 @@ class D2Presence:
         if(str(act) == "Deep Stone Crypt"):
             data1 = "Raid"
 
-
         # get location and sublocation here
 
         if data2 == "In Orbit":
             data3 = "Patrolling Space"
         else:
             data3 = "Location" + " - " + "sublocation"
+        
+        self.getAccountLevel()
 
-        # get player's charater info here
-        # https://github.com/Bungie-net/api/issues/225 can find stuff here
-        # find most recent "datelastplayed" for current player
-        data4 = "gender" + " " + "class" + " - " + "Season Pass Level " + "##"
-
+        data4 = self.currentRace + " " + self.currentGender + " " + self.currentClass + " - " + "Season Pass Level " + str(self.level)
 
         dataToReturn = [
             # str(act),  # State
@@ -338,6 +352,52 @@ class D2Presence:
         t = requests.get(BASE_URL + "{0}/Profile/{1}/?components=204".format(platform, memID, charID), headers=my_header)
         j = t.json()
         return j
+
+    def getAccountLevel(self):
+        t = requests.get(BASE_URL + "{0}/Profile/{1}/?components=202".format(platform, memID, charID), headers=my_header)
+
+        # self.accjson = t.json()
+        # with open('progression.json', 'w') as out:
+            # json.dump(self.accjson["Response"], out)
+
+        temp = t.json()["Response"]["characterProgressions"]["data"]["{}".format(self.currentCharacter)]["progressions"]
+        # Should implement self.getCurrentSeason to grab current season's hash
+        currentSeasonInfo = temp["477676543"]#["2098519537"]
+        # for x in currentSeasonInfo:
+        #     print(x)
+
+        self.level = currentSeasonInfo["level"]
+        # for x in temp["progressions"]:
+        #     print(x)
+        
+        # self.level = -1
+
+    def getCurrentCharacter(self):
+        t = requests.get(BASE_URL + "{0}/Profile/{1}/?components=200".format(platform, memID, charID), headers=my_header)
+        temp = t.json()["Response"]["characters"]["data"]
+        
+        # Find most recent "datelastplayed" for current player
+        timestamps = {}
+
+        for x in temp:
+            timestamps[x] = temp[x]["dateLastPlayed"]
+        
+        # chracter id to be used later
+        self.currentCharacter = max(timestamps, key=lambda key: timestamps[key])
+        currentCharacterJSON = temp[self.currentCharacter]
+
+        # These will have to be changed to xHash if multiple languages supported.
+        self.currentRace = raceTypes(currentCharacterJSON["raceType"]).name
+        self.currentGender = genderTypes(currentCharacterJSON["genderType"]).name
+        self.currentClass = classTypes(currentCharacterJSON["classType"]).name
+        # print(currentCharacterJSON)
+
+
+        # self.accjson = t.json()
+        # with open('acc.json', 'w') as out:
+        #     json.dump(t.json()["Response"], out)
+        
+
 
 
     def update(self):
