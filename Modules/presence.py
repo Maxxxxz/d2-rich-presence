@@ -116,6 +116,36 @@ class modeTypes(Enum):
     Sundial = 83
     TrialsOfOsiris = 84
 
+class RichPresenceState:
+    # A Rich Presence State
+    #
+    # Here is a map between the information here and
+    # What Discord requires for a Rich Presence
+    # 
+    # Discord ------------- D2 Rich Presence
+    #  state                .
+    #  details              .
+    #  start timestamp      .
+    #  large image text     .
+    #  small image text     .
+    #  party id             (any number to enable "x of y")
+    #  party size           .
+    #  party max            .
+
+    def __init__(self):
+        # Universal Information
+        self.LocalizedTimeStarted = time.time()     # Must be a number
+        self.Level = 0
+        
+        # Basic Activity Information
+        self.ActivityName = "null"
+        # self.Activity
+
+
+        # Fireteam Size Limits (MUST be numbers)
+        self.FireteamSize = 0
+        self.FireteamMaxSize = 3
+
 class D2Presence:
     def __init__(self):
         print("init presence")
