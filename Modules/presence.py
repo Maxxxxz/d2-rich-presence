@@ -137,8 +137,14 @@ class D2Presence:
 
         self.activity_hashes = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyActivityDefinition"]).json()
         # self.mode_type = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyActivityModeTypeDefinition"]).json()
-        self.destin_hashes = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyPlaceDefinition"]).json()
+        self.place_hashes = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyPlaceDefinition"]).json()
+        self.destin_hashes = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyDestinationDefinition"]).json()
         self.activity_type_hashes = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyActivityTypeDefinition"]).json()
+
+        # print(self.place_hashes)
+
+        with open('destinations.json', 'w') as out:
+            json.dump(self.destin_hashes, out)
 
         # for x in self.activity_hashes:
         #     print(x)
@@ -173,6 +179,9 @@ class D2Presence:
     def start(self):
         self.RPC.connect()
 
+    def doUpdate(self):
+        print("updating information...")
+
     def getCurrentActivity(self):
         # print("current activity")
         # data = ["details", "state", "Location - sublocation", "gender class - Season Pass level x"]
@@ -194,6 +203,9 @@ class D2Presence:
         pl_act = "null"
         pl_act_hash = "null"
 
+        destination = "null"
+        place = "null"
+
         timestamps = {}
         tempjson = injson['Response']["characterActivities"]["data"]
 
@@ -202,7 +214,7 @@ class D2Presence:
 
         # currentjson = tempjson[max(timestamps, key=lambda key: timestamps[key])]
 
-        currentjson = json.load(open("testdata/privatecrucible.json",))
+        currentjson = json.load(open("testdata/europaexplore.json",))
 
         # with open('t.json', 'w') as out:
         #     json.dump(currentjson, out)
@@ -248,13 +260,20 @@ class D2Presence:
             if str(x) == str(activity_hash):
                 # print("match on activity!")
                 # print(self.activity_hashes[x]['displayProperties']['name'])
-                act = self.activity_hashes[x]['displayProperties']['name']
+                theHash = self.activity_hashes[x]
+                act = theHash['displayProperties']['name']
+                destination = theHash['destinationHash']
+                place = theHash['placeHash']
 
         for x in self.activity_hashes:
             if str(x) == str(playlist_activity_hash):
                 # print("match on playlist activity hash!")
                 # print(self.activity_hashes[x]['displayProperties']['name'])
-                pl_act = self.activity_hashes[x]['displayProperties']['name']
+                # pl_act = self.activity_hashes[x]['displayProperties']['name']
+                theHash = self.activity_hashes[x]
+                pl_act = theHash['displayProperties']['name']
+                destination = str(theHash['destinationHash'])
+                place = str(theHash['placeHash'])
 
         # print(modeTypes(current_mode_type).name)
         pl_act_hash = str(modeTypes(current_mode_type).name)
@@ -292,6 +311,7 @@ class D2Presence:
             data2 = "In Orbit"
         else:
             data2 = act
+            # print("ACT IS: " + act)
         # if playlist activity do other stuff
         data3 = "33"
         data4 = "44"
@@ -310,10 +330,16 @@ class D2Presence:
 
         # get location and sublocation here
 
-        if data2 == "In Orbit":
+        if data2 == "In Orbit" or place == "null" or destination == "null":
             data3 = "Patrolling Space"
         else:
-            data3 = "Location" + " - " + "sublocation"
+            loc = self.place_hashes[place]['displayProperties']['name']
+            subloc = self.destin_hashes[destination]['displayProperties']['name']
+            print("LOCATION: " + loc + " SUBLOCATION: " + subloc)
+            if loc == subloc:
+                data3 = loc
+            else:
+                data3 = loc + " - " + subloc
         
         self.getAccountLevel()
 
