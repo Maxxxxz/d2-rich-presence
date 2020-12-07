@@ -116,6 +116,24 @@ class modeTypes(Enum):
     Sundial = 83
     TrialsOfOsiris = 84
 
+# ["details", "state", "Location - sublocation", "gender class - Season Pass level x"]
+# ["Nessus Orbit - Raid", "fucking up calus", "Nessus Orbit - Raid", "Awoken Female - Season level 69"]
+        # self.RPC.update(
+        # details=details[0],
+        # state=details[1],
+        # # start=time.time(),
+        # start=int(details[6]),
+        # large_text=details[2],
+        # large_image=self.getLargeImage(details[2]),
+        # small_text=details[3],
+        # small_image=self.getSmallImage(details[3]),
+        # # party_id="00",  # can't initiate a join
+        # party_size=[int(details[4]),int(details[5])],
+        # # join="",
+        # # match="match test",
+        # )
+
+
 class RichPresenceState:
     # A Rich Presence State
     #
@@ -137,10 +155,23 @@ class RichPresenceState:
         self.LocalizedTimeStarted = time.time()     # Must be a number
         self.Level = 0
         
+        # Raw information
+        self.details = "null"
+        self.state = "null"
+        self.start = 0
+        self.large_text = "Location - sublocation"
+        self.small_text = "gender class - Season pass level x"
+
         # Basic Activity Information
         self.ActivityName = "null"
         # self.Activity
+        self.Location = "null"
+        self.SubLocation = "null"
 
+        # Character info
+        self.Race = "null"
+        self.Gender = "null"
+        self.Class = "null"
 
         # Fireteam Size Limits (MUST be numbers)
         self.FireteamSize = 0
@@ -149,7 +180,7 @@ class RichPresenceState:
 class D2Presence:
     def __init__(self):
         print("init presence")
-
+        self.state = RichPresenceState()
         man = requests.get(BASE_URL + "Manifest/")
         self.manifest = man.json()
         # print(j1["Response"]["jsonWorldComponentContentPaths"]['en']['DestinyActivityDefinition'])
@@ -373,24 +404,28 @@ class D2Presence:
         
         self.getAccountLevel()
 
-        data4 = self.currentRace + " " + self.currentGender + " " + self.currentClass + " - " + "Season Pass Level " + str(self.level)
 
-        dataToReturn = [
-            # str(act),  # State
-            # str(act_type),      # Details
-            # "act",
-            # "act_type",
-            data1,
-            data2,
-            # "large image",
-            # "small image",
-            data3,
-            data4,
-            # maybe have some fireteam size info here?
-            data5,
-            data6,
-            data7,
-        ]
+        self.state.details = data1
+        self.state.state = data2
+
+        # data4 = self.state.Race + " " + self.state.Gender + " " + self.state.Class + " - " + "Season Pass Level " + str(self.level)
+
+        # dataToReturn = [
+        #     # str(act),  # State
+        #     # str(act_type),      # Details
+        #     # "act",
+        #     # "act_type",
+        #     data1,
+        #     data2,
+        #     # "large image",
+        #     # "small image",
+        #     data3,
+        #     data4,
+        #     # maybe have some fireteam size info here?
+        #     data5,
+        #     data6,
+        #     data7,
+        # ]
 
         # print(tempjson[dataToReturn[0]])
         # for x in tempjson[dataToReturn[0]]:
@@ -443,9 +478,9 @@ class D2Presence:
         currentCharacterJSON = temp[self.currentCharacter]
 
         # These will have to be changed to xHash if multiple languages supported.
-        self.currentRace = raceTypes(currentCharacterJSON["raceType"]).name
-        self.currentGender = genderTypes(currentCharacterJSON["genderType"]).name
-        self.currentClass = classTypes(currentCharacterJSON["classType"]).name
+        self.state.Race = raceTypes(currentCharacterJSON["raceType"]).name
+        self.state.Gender = genderTypes(currentCharacterJSON["genderType"]).name
+        self.state.Class = classTypes(currentCharacterJSON["classType"]).name
         # print(currentCharacterJSON)
 
 

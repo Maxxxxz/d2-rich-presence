@@ -17,7 +17,7 @@ class Application(tk.Frame):
     selectedFiles = []
 
     def __init__(self, master=None):
-        master.title("{}".format(APPNAME))                                  #change title here
+        master.title("{}".format(APPNAME))                        #change title here
         master.geometry("{}x{}".format(WIDTH, HEIGHT))            #change window size here
         master.resizable(width=False, height=False)               #resizable?
         tk.Frame.__init__(self, master, relief=tk.GROOVE)
