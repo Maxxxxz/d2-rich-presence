@@ -159,8 +159,12 @@ class RichPresenceState:
         self.details = "null"
         self.state = "null"
         self.start = 0
+
+        # Extrapolated Information
         self.large_text = "Location - sublocation"
         self.small_text = "gender class - Season pass level x"
+        self.large_image = "null"
+        self.small_image = "null"
 
         # Basic Activity Information
         self.ActivityName = "null"
@@ -173,9 +177,14 @@ class RichPresenceState:
         self.Gender = "null"
         self.Class = "null"
 
-        # Fireteam Size Limits (MUST be numbers)
-        self.FireteamSize = 0
+        # Fireteam Size Limits (MUST be numbers; Fireteam size is ALWAYS at least 1)
+        self.FireteamSize = 1
         self.FireteamMaxSize = 3
+    
+    def extrapolate(self):
+        self.large_text = "{0} - {1}".format(self.Location, self.SubLocation)
+        self.small_text = "{0} {1} {2} - Season Pass Level {3}".format(self.Gender, self.Race, self.Class, self.Level)
+
 
 class D2Presence:
     def __init__(self):
@@ -204,8 +213,8 @@ class D2Presence:
 
         # print(self.place_hashes)
 
-        with open('destinations.json', 'w') as out:
-            json.dump(self.destin_hashes, out)
+        # with open('destinations.json', 'w') as out:
+        #     json.dump(self.destin_hashes, out)
 
         # for x in self.activity_hashes:
         #     print(x)
@@ -250,9 +259,10 @@ class D2Presence:
 
         j = self.getActivitiesJSON()
 
-        data = self.getLatestActivity(j)
+        # data = self.getLatestActivity(j)
+        self.getLatestActivity(j)
 
-        return data
+        # return data
 
     def getLatestActivity(self, injson):
 
@@ -275,10 +285,10 @@ class D2Presence:
 
         # currentjson = tempjson[max(timestamps, key=lambda key: timestamps[key])]
 
-        currentjson = json.load(open("testdata/europaexplore.json",))
+        currentjson = json.load(open("testdata/ironbanner.json",))
 
         # with open('t.json', 'w') as out:
-        #     json.dump(currentjson, out)
+            # json.dump(currentjson, out)
 
         activity_hash = currentjson["currentActivityHash"]
 
@@ -384,6 +394,7 @@ class D2Presence:
         if "dateActivityStarted" in currentjson:
             date = currentjson["dateActivityStarted"]
             data7 = datetime_zero_to_local(datetime.strptime(date, "%Y-%m-%dT%H:%M:%SZ")).timestamp()
+            self.state.start = data7
             print(data7)
 
         if(str(act) == "Deep Stone Crypt"):
@@ -436,7 +447,7 @@ class D2Presence:
     
 
 
-        return dataToReturn
+        # return dataToReturn
 
     def getActivitiesJSON(self):
         # t = requests.get(BASE_URL + "{0}/Profile/{1}/?components=CharacterActivities".format(platform, memID, charID), headers=my_header)
@@ -493,21 +504,42 @@ class D2Presence:
 
     def update(self):
         # print("updating")
-        details = self.getCurrentActivity()
-        self.updatePresence(details)
+        # details = self.getCurrentActivity()
+        self.getCurrentActivity()
+        # self.updatePresence(details)
+        self.updatePresence()
 
-    def updatePresence(self, details):
+    # def updatePresence(self, details):
+    #     self.RPC.update(
+    #     details=details[0],
+    #     state=details[1],
+    #     # start=time.time(),
+    #     start=int(details[6]),
+    #     large_text=details[2],
+    #     large_image=self.getLargeImage(details[2]),
+    #     small_text=details[3],
+    #     small_image=self.getSmallImage(details[3]),
+    #     # party_id="00",  # can't initiate a join
+    #     party_size=[int(details[4]),int(details[5])],
+    #     # join="",
+    #     # match="match test",
+    #     )
+
+    def updatePresence(self):
+        self.state.extrapolate()
         self.RPC.update(
-        details=details[0],
-        state=details[1],
+        details=self.state.details,
+        state=self.state.state,
         # start=time.time(),
-        start=int(details[6]),
-        large_text=details[2],
-        large_image=self.getLargeImage(details[2]),
-        small_text=details[3],
-        small_image=self.getSmallImage(details[3]),
+        start=int(self.state.start),
+        large_text=self.state.large_text,
+        # large_image=self.getLargeImage(self.state.large_text),
+        large_image=self.state.large_image,
+        small_text=self.state.small_text,
+        small_image=self.state.small_image,
+        # small_image=self.getSmallImage(self.state.small_text),
         # party_id="00",  # can't initiate a join
-        party_size=[int(details[4]),int(details[5])],
+        party_size=[int(self.state.FireteamSize),int(self.state.FireteamMaxSize)],
         # join="",
         # match="match test",
         )
