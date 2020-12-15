@@ -19,6 +19,9 @@ class Menu(Page):
         getinfoButton = tk.Button(self, text="get info", command= RPC.test)
         getinfoButton.place(x=(w/2), y=(w/2) - 50, anchor="center")
 
+        printPresence = tk.Button(self, text="print presence", command= RPC.printPresence)
+        printPresence.place(x=(w/2), y=(w/2) - 100, anchor="center")
+
 #   First Load/Reset Page
 class GetInfo(Page):
     def __init__(self, w, RPC):
