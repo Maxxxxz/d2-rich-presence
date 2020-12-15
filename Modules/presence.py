@@ -163,8 +163,8 @@ class RichPresenceState:
         # Extrapolated Information
         self.large_text = "Location - sublocation"
         self.small_text = "gender class - Season pass level x"
-        self.large_image = "null"
-        self.small_image = "null"
+        self.large_image = "cockatiel_tank"
+        self.small_image = "cockatiel_german_officer"
 
         # Basic Activity Information
         self.ActivityName = "null"
@@ -177,14 +177,55 @@ class RichPresenceState:
         self.Gender = "null"
         self.Class = "null"
 
+        # Extra info (Control, Supremacy, Clash, etc.)
+        self.Mode = "null"
+
         # Fireteam Size Limits (MUST be numbers; Fireteam size is ALWAYS at least 1)
         self.FireteamSize = 1
         self.FireteamMaxSize = 3
     
     def extrapolate(self):
-        self.large_text = "{0} - {1}".format(self.Location, self.SubLocation)
+        if self.details == "IronBannerControl":
+            self.details = "Iron Banner"
+            # self.Location = self.details
+            self.SubLocation = self.ActivityName
+        
+        
+        if self.Location == self.SubLocation:
+            self.large_text = "{0}".format(self.Location)
+        else:
+            self.large_text = "{0} - {1}".format(self.Location, self.SubLocation)
+
         self.small_text = "{0} {1} {2} - Season Pass Level {3}".format(self.Gender, self.Race, self.Class, self.Level)
 
+        # Change FireteamMaxSize based on activity; further change based on crucible mode
+        if(self.Mode == "Control" or
+           self.Mode == "IronBannerControl" or
+           self.Mode == "Raid"
+           ):
+            self.FireteamMaxSize = 6
+        else:
+            self.FireteamMaxSize = 3
+
+    def output(self):
+        print("LocalizedTimeStarted = {}".format(self.LocalizedTimeStarted))
+        print("Level = {}".format(self.Level))
+        print("details = {}".format(self.details))
+        print("state = {}".format(self.state))
+        print("start = {}".format(self.start))
+        print("large_text = {}".format(self.large_text))
+        print("small_text = {}".format(self.small_text))
+        print("large_image = {}".format(self.large_image))
+        print("small_image = {}".format(self.small_image))
+        print("ActivityName = {}".format(self.ActivityName))
+        print("Location = {}".format(self.Location))
+        print("SubLocation = {}".format(self.SubLocation))
+        print("Race = {}".format(self.Race))
+        print("Gender = {}".format(self.Gender))
+        print("Class = {}".format(self.Class))
+        print("Mode = {}".format(self.Mode))
+        print("FireteamSize = {}".format(self.FireteamSize))
+        print("FireteamMaxSize = {}".format(self.FireteamMaxSize))
 
 class D2Presence:
     def __init__(self):
@@ -246,6 +287,9 @@ class D2Presence:
         self.RPC = Presence(RPC_CLIENT_ID)
         self.start()
         
+    def printPresence(self):
+        self.state.output()
+
     def start(self):
         self.RPC.connect()
 
@@ -285,7 +329,7 @@ class D2Presence:
 
         # currentjson = tempjson[max(timestamps, key=lambda key: timestamps[key])]
 
-        currentjson = json.load(open("testdata/ironbanner.json",))
+        currentjson = json.load(open("testdata/raid.json",))
 
         # with open('t.json', 'w') as out:
             # json.dump(currentjson, out)
@@ -367,6 +411,7 @@ class D2Presence:
 
         # data = ["details", "state", "Location - sublocation", "gender class - Season Pass level x"]
         
+        # this is so fuckign stupid is there something else I can do
         if pl_act_hash != "NULL":
             data1 = str(pl_act_hash)
         elif act_type == "null" or act_type == "":
@@ -374,6 +419,14 @@ class D2Presence:
         else:
             data1 = str(act_type)
         
+
+        if pl_act_hash == "IronBannerControl":
+            self.state.ActivityName = str(act)
+        else:
+            self.state.ActivityName = data1
+
+        self.state.Mode = pl_act_hash
+
         data2 = ""
         # We do some stuff here with last wish because of a presumably unimplemented prestige mode.
         if act.startswith("Last Wish"):
@@ -383,6 +436,9 @@ class D2Presence:
         else:
             data2 = act
             # print("ACT IS: " + act)
+
+        # self.state.
+
         # if playlist activity do other stuff
         data3 = "33"
         data4 = "44"
@@ -399,6 +455,7 @@ class D2Presence:
 
         if(str(act) == "Deep Stone Crypt"):
             data1 = "Raid"
+            self.state.Mode = "Raid"
 
         # get location and sublocation here
 
@@ -412,6 +469,9 @@ class D2Presence:
                 data3 = loc
             else:
                 data3 = loc + " - " + subloc
+            
+            self.state.Location = loc
+            self.state.SubLocation = subloc
         
         self.getAccountLevel()
 
@@ -468,7 +528,7 @@ class D2Presence:
         # for x in currentSeasonInfo:
         #     print(x)
 
-        self.level = currentSeasonInfo["level"]
+        self.state.Level = currentSeasonInfo["level"]
         # for x in temp["progressions"]:
         #     print(x)
         
