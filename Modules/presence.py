@@ -581,6 +581,45 @@ class D2Presence:
     def update(self):
         # print("updating")
         # details = self.getCurrentActivity()
+
+        useDefault = False
+
+        # On fail, attempt 2 more times to get info, else set presence to default
+        # functions return 0 if successful
+        # else it does not return, keeping res = None
+
+        # Get the currently played character
+
+        loops = 0
+
+        if not useDefault:
+            res = None
+            while res is None and loops < 3:
+                try:
+                    res = self.getCurrentCharacter()
+                except:
+                    print("failed!")
+                    loops = loops + 1
+
+        # if failed 3 times, set useDefault to True
+        if loops == 3:
+            useDefault = True
+
+        loops = 0
+
+        if not useDefault:
+            res = None
+            while res is None and loops < 3:
+                try:
+                    res = self.getCurrentActivity()
+                except:
+                    print("failed!")
+                    loops = loops + 1
+        
+            # if failed 3 times, set useDefault to True
+            if loops == 3:
+                useDefault = True
+
         # self.updatePresence(details)
         
 
