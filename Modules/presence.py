@@ -153,6 +153,7 @@ class RichPresenceState:
     def __init__(self):
         # Universal Information
         self.LocalizedTimeStarted = time.time()     # Must be a number
+        self.Platform = "PC" # Default PC, don't display PC.
         self.Level = 0
         
         # Raw information
@@ -197,6 +198,10 @@ class RichPresenceState:
             self.large_text = "{0} - {1}".format(self.Location, self.SubLocation)
 
         self.small_text = "{0} {1} {2} - Season Pass Level {3}".format(self.Gender, self.Race, self.Class, self.Level)
+
+        if self.Platform != "PC":
+            self.small_text = "(" + self.Platform + ") " + self.small_text
+
 
         # Change FireteamMaxSize based on activity; further change based on crucible mode
         if(self.Mode == "Control" or
