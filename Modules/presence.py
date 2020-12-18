@@ -5,6 +5,7 @@ from datetime import datetime
 import requests
 import json
 import operator
+import threading
 
 BASE_URL = "https://bungie.net/Platform/Destiny2/"
 API_KEY = "7df97cc02219401fbfa6be6c26069b44"
@@ -204,6 +205,7 @@ class RichPresenceState:
 
 
         # Change FireteamMaxSize based on activity; further change based on crucible mode
+        # in orbit, max is 12 for private crucible
         if(self.Mode == "Control" or
            self.Mode == "IronBannerControl" or
            self.Mode == "Raid"
@@ -290,6 +292,8 @@ class D2Presence:
 
 
         self.RPC = Presence(RPC_CLIENT_ID)
+        self.updateThread = threading.Thread(target=self.doUpdate, name="Updater")
+        self.updateThread.daemon = True # Set to true to stop after program exits
         self.start()
         
     def printPresence(self):
@@ -298,8 +302,11 @@ class D2Presence:
     def start(self):
         self.RPC.connect()
 
-    def doUpdate(self):
+    def startUpdate(self):
         print("updating information...")
+        # if valid user
+        self.updateThread.start()
+
 
     def getCurrentActivity(self):
         # print("current activity")
@@ -310,13 +317,10 @@ class D2Presence:
 
         # data = self.getLatestActivity(j)
         self.getLatestActivity(j)
-
-        # return data
+        
+        return 0
 
     def getLatestActivity(self, injson):
-
-        # Get the currently played character
-        self.getCurrentCharacter()
 
         act = "null"
         act_type = "null"
@@ -332,9 +336,9 @@ class D2Presence:
         for x in tempjson:
             timestamps[x] = tempjson[x]['dateActivityStarted']
 
-        # currentjson = tempjson[max(timestamps, key=lambda key: timestamps[key])]
+        currentjson = tempjson[max(timestamps, key=lambda key: timestamps[key])]
 
-        currentjson = json.load(open("testdata/raid.json",))
+        # currentjson = json.load(open("testdata/raid.json",))
 
         # with open('t.json', 'w') as out:
             # json.dump(currentjson, out)
@@ -525,7 +529,7 @@ class D2Presence:
 
         # self.accjson = t.json()
         # with open('progression.json', 'w') as out:
-            # json.dump(self.accjson["Response"], out)
+        #     json.dump(self.accjson["Response"], out)
 
         temp = t.json()["Response"]["characterProgressions"]["data"]["{}".format(self.currentCharacter)]["progressions"]
         # Should implement self.getCurrentSeason to grab current season's hash
@@ -563,16 +567,28 @@ class D2Presence:
         # self.accjson = t.json()
         # with open('acc.json', 'w') as out:
         #     json.dump(t.json()["Response"], out)
+
+        return 0
         
 
-
+    def doUpdate(self):
+        starttime = time.time()
+        success = True
+        while success:
+            success = self.update()
+            time.sleep(15.0 - ((time.time() - starttime) % 15.0))
 
     def update(self):
         # print("updating")
         # details = self.getCurrentActivity()
-        self.getCurrentActivity()
         # self.updatePresence(details)
-        self.updatePresence()
+        
+
+
+        # true -> default stuff
+        # false -> actual presence
+        self.updatePresence(useDefault)
+        return True
 
     # def updatePresence(self, details):
     #     self.RPC.update(
@@ -590,24 +606,38 @@ class D2Presence:
     #     # match="match test",
     #     )
 
-    def updatePresence(self):
-        self.state.extrapolate()
-        self.RPC.update(
-        details=self.state.details,
-        state=self.state.state,
-        # start=time.time(),
-        start=int(self.state.start),
-        large_text=self.state.large_text,
-        # large_image=self.getLargeImage(self.state.large_text),
-        large_image=self.state.large_image,
-        small_text=self.state.small_text,
-        small_image=self.state.small_image,
-        # small_image=self.getSmallImage(self.state.small_text),
-        # party_id="00",  # can't initiate a join
-        party_size=[int(self.state.FireteamSize),int(self.state.FireteamMaxSize)],
-        # join="",
-        # match="match test",
-        )
+    def updatePresence(self, doDefault):
+        
+        if not doDefault:
+            self.state.extrapolate()
+            self.RPC.update(
+            details=self.state.details,
+            state=self.state.state,
+            # start=time.time(),
+            start=int(self.state.start),
+            large_text=self.state.large_text,
+            # large_image=self.getLargeImage(self.state.large_text),
+            large_image=self.state.large_image,
+            small_text=self.state.small_text,
+            small_image=self.state.small_image,
+            # small_image=self.getSmallImage(self.state.small_text),
+            # party_id="00",  # can't initiate a join
+            party_size=[int(self.state.FireteamSize),int(self.state.FireteamMaxSize)],
+            # join="",
+            # match="match test",
+            )
+        else:
+            print("Using Default!")
+            self.RPC.update(
+            details="Orbit",
+            state="Patrolling Space",
+            start=time.time(),
+            large_text="orbit",
+            large_image="default",
+            small_text=self.state.small_text,
+            small_image="default",
+            # party_size=[0,0],
+            )
 
     def getSmallImage(self, data):
         return "cockatiel_tank"
