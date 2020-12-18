@@ -13,11 +13,13 @@ class Menu(Page):
         Page.__init__(self)
         label = tk.Label(self, text="Max's Destiny 2 Rich Presence App")
         label.place(x=(w/2), y=25, anchor="center")  # Place label at top of screen
-        updateButton = tk.Button(self, text="Update", command= RPC.update)
+        updateButton = tk.Button(self, text="Start", 
+            command=RPC.startUpdate
+            )
         updateButton.place(x=(w/2), y=(w/2), anchor="center")
 
-        getinfoButton = tk.Button(self, text="get info", command= RPC.test)
-        getinfoButton.place(x=(w/2), y=(w/2) - 50, anchor="center")
+        # getinfoButton = tk.Button(self, text="get info", command= RPC.test)
+        # getinfoButton.place(x=(w/2), y=(w/2) - 50, anchor="center")
 
         printPresence = tk.Button(self, text="print presence", command= RPC.printPresence)
         printPresence.place(x=(w/2), y=(w/2) - 100, anchor="center")
