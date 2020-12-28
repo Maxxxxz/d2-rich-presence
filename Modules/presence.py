@@ -258,6 +258,14 @@ class D2Presence:
         self.place_hashes = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyPlaceDefinition"]).json()
         self.destin_hashes = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyDestinationDefinition"]).json()
         self.activity_type_hashes = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyActivityTypeDefinition"]).json()
+        # self.season_definition = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinySeasonDefinition"]).json()
+        self.season_pass_definition = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinySeasonPassDefinition"]).json()
+
+        # print(self.season_pass_definition)
+
+        # for x in self.season_definition:
+        #     print(x)
+        # print(self.season_definition)
 
         # print(self.place_hashes)
 
@@ -530,18 +538,26 @@ class D2Presence:
         # self.accjson = t.json()
         # with open('progression.json', 'w') as out:
         #     json.dump(self.accjson["Response"], out)
-
-        temp = t.json()["Response"]["characterProgressions"]["data"]["{}".format(self.currentCharacter)]["progressions"]
-        # Should implement self.getCurrentSeason to grab current season's hash
-        currentSeasonInfo = temp["477676543"]#["2098519537"]
-        # for x in currentSeasonInfo:
-        #     print(x)
-
-        self.state.Level = currentSeasonInfo["level"]
-        # for x in temp["progressions"]:
-        #     print(x)
         
-        # self.level = -1
+        temp = t.json()["Response"]["characterProgressions"]["data"]["{}".format(self.currentCharacter)]["progressions"]
+
+        currentSeasonHash, currentSeasonPrestigeHash = self.getCurrentSeasonHashes()
+
+        normal = temp[currentSeasonHash]["level"]
+        prestige = temp[currentSeasonPrestigeHash]["level"]
+
+        self.state.Level = int(normal) + int(prestige)
+
+    def getCurrentSeasonHashes(self):
+
+        seasonHash = list(self.season_pass_definition.keys())[-1]
+
+        # print(seasonHash)
+
+        normal = self.season_pass_definition[str(seasonHash)]["rewardProgressionHash"]
+        prestige = self.season_pass_definition[str(seasonHash)]["prestigeProgressionHash"]
+
+        return str(normal), str(prestige)
 
     def getCurrentCharacter(self):
         t = requests.get(BASE_URL + "{0}/Profile/{1}/?components=200".format(platform, memID, charID), headers=my_header)
@@ -619,6 +635,8 @@ class D2Presence:
             # if failed 3 times, set useDefault to True
             if loops == 3:
                 useDefault = True
+
+        # res = self.getCurrentActivity()
 
         # self.updatePresence(details)
         
