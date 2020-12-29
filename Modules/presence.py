@@ -647,22 +647,6 @@ class D2Presence:
         self.updatePresence(useDefault)
         return True
 
-    # def updatePresence(self, details):
-    #     self.RPC.update(
-    #     details=details[0],
-    #     state=details[1],
-    #     # start=time.time(),
-    #     start=int(details[6]),
-    #     large_text=details[2],
-    #     large_image=self.getLargeImage(details[2]),
-    #     small_text=details[3],
-    #     small_image=self.getSmallImage(details[3]),
-    #     # party_id="00",  # can't initiate a join
-    #     party_size=[int(details[4]),int(details[5])],
-    #     # join="",
-    #     # match="match test",
-    #     )
-
     def updatePresence(self, doDefault):
         
         if not doDefault:
@@ -690,9 +674,9 @@ class D2Presence:
             state="Patrolling Space",
             start=time.time(),
             large_text="orbit",
-            large_image="default",
+            large_image="cockatiel_tank",
             small_text=self.state.small_text,
-            small_image="default",
+            small_image="cockatiel_german_officer",
             # party_size=[0,0],
             )
 
@@ -701,9 +685,6 @@ class D2Presence:
 
     def getLargeImage(self, data):
         return "cockatiel_german_officer"
-
-
-
 
     def test(self):
         print("test")
