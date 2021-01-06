@@ -186,6 +186,7 @@ class RichPresenceState:
         self.FireteamSize = 1
         self.FireteamMaxSize = 3
     
+    # Add more extrapolation stuff like europa name stuff
     def extrapolate(self):
         if self.details == "IronBannerControl":
             self.details = "Iron Banner"
