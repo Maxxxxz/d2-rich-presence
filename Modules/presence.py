@@ -197,7 +197,10 @@ class RichPresenceState:
         if self.Location == self.SubLocation:
             self.large_text = "{0}".format(self.Location)
         else:
-            self.large_text = "{0} - {1}".format(self.Location, self.SubLocation)
+            if self.SubLocation not in self.Location:
+                self.large_text = "{0} - {1}".format(self.Location, self.SubLocation)
+            else:
+                self.large_text = "{0}".format(self.Location)
 
         self.small_text = "{0} {1} {2} - Season Pass Level {3}".format(self.Gender, self.Race, self.Class, self.Level)
 
