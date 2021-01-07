@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import filedialog
 import Modules.Pages as Pages
 import Modules.presence as prz
+import setup
 
 import webbrowser
 
@@ -44,6 +45,8 @@ class Application(tk.Frame):
 
         # self.bind_all("<Control-Key-0>", self.pages[0].show)    # main menu
         # self.bind_all("<Control-Key-1>", self.pages[1].show)    # Page 2
+
+        setup.start()
 
         self.bind_all("<Control-Key-w>", lambda _: self.master.quit())    # Quit Application
 

@@ -7,6 +7,8 @@ import json
 import operator
 import threading
 
+import setup
+
 BASE_URL = "https://bungie.net/Platform/Destiny2/"
 API_KEY = "7df97cc02219401fbfa6be6c26069b44"
 RPC_CLIENT_ID = "777656520518270986"
@@ -219,6 +221,7 @@ class RichPresenceState:
             self.FireteamMaxSize = 3
 
     def output(self):
+        print("key = {}".format(setup.APIKEY))
         print("LocalizedTimeStarted = {}".format(self.LocalizedTimeStarted))
         print("Level = {}".format(self.Level))
         print("details = {}".format(self.details))
