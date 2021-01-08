@@ -221,7 +221,7 @@ class RichPresenceState:
             self.FireteamMaxSize = 3
 
     def output(self):
-        print("key = {}".format(setup.APIKEY))
+        # print("key = {}".format(setup.APIKEY))
         print("LocalizedTimeStarted = {}".format(self.LocalizedTimeStarted))
         print("Level = {}".format(self.Level))
         print("details = {}".format(self.details))
