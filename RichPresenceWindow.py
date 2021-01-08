@@ -1,6 +1,6 @@
 import sys
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 import Modules.Pages as Pages
 import Modules.presence as prz
 import setup
@@ -39,14 +39,19 @@ class Application(tk.Frame):
         for page in self.pages:     # place all pages
             page.place(in_=self.contentFrame, x=0, y=0, relwidth=1, relheight=1)
 
-        self.pages[0].show()
+        # maybe I could start this at the beginning and make it asynchronous, then wait on the main thread until this is finished?
+        self.startFresh = setup.start()
+
+        if self.startFresh:
+            self.pages[1].show()
+            messagebox.showinfo("New User", "It looks like you haven't used this application before.\nLet's start by getting some information.")
+        else:
+            self.pages[0].show()
 
         master.config(menu=self.menubar)
 
         # self.bind_all("<Control-Key-0>", self.pages[0].show)    # main menu
         # self.bind_all("<Control-Key-1>", self.pages[1].show)    # Page 2
-
-        setup.start()
 
         self.bind_all("<Control-Key-w>", lambda _: self.master.quit())    # Quit Application
 
@@ -80,6 +85,7 @@ class Application(tk.Frame):
     def addContent(self, contentFrame=None):                        #add content to contentFrame here
         self.RPC = prz.D2Presence()
         self.pages.append(Pages.Menu(WIDTH, self.RPC))
+        self.pages.append(Pages.GetInfo(WIDTH, self.RPC))
 
 def handleArgs():
     pass
