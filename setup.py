@@ -12,9 +12,9 @@ MEMBERID = None
 def start():
 
     if path.exists("./saved/info.json"):
-        getInfoJson()
+        return getInfoJson()
     else:
-        print("does not exist")
+        print("no save info found!")
         
 
 
@@ -46,8 +46,10 @@ def getInfoJson():
         partialInfo = True
 
 
-    if partialInfo:
-        pass
+    if partialInfo: # startFresh will be set to true
+        return True
+    else:           # startFresh will be set to false, information is present
+        return False
         # Now, do stuff that initializes the window to getinfo section
 
     # CURRENTSEASONHASH = data["current-season-hash"]
