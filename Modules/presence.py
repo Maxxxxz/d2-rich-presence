@@ -245,21 +245,21 @@ class D2Presence:
     def __init__(self):
         print("init presence")
         self.state = RichPresenceState()
+
+        self.manifest = None
+
+        self.manThread = threading.Thread(target=self.getManifest, name="GetManifest")
+        self.manThread.daemon = True
+        self.manThread.start()
+
+        self.RPC = Presence(RPC_CLIENT_ID)
+        self.updateThread = threading.Thread(target=self.doUpdate, name="Updater")
+        self.updateThread.daemon = True # Set to true to stop after program exits
+        self.start()
+        
+    def getManifest(self):
         man = requests.get(BASE_URL + "Manifest/")
         self.manifest = man.json()
-        # print(j1["Response"]["jsonWorldComponentContentPaths"]['en']['DestinyActivityDefinition'])
-        # hashes = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]['en'])
-        # for x in j1["Response"]:
-        #     print(x)
-        # print(j1["Response"]["jsonWorldComponentContentPaths"]["en"]['DestinyDestinationDefinition'])
-        # self.hashes = hashes.json()
-        
-        # tt = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]).json()
-
-        # print(self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"])
-        # with open('t.json', 'w') as out:
-        #     json.dump(self.manifest["Response"], out)
-
         self.activity_hashes = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyActivityDefinition"]).json()
         # self.mode_type = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyActivityModeTypeDefinition"]).json()
         self.place_hashes = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyPlaceDefinition"]).json()
@@ -268,49 +268,6 @@ class D2Presence:
         # self.season_definition = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinySeasonDefinition"]).json()
         self.season_pass_definition = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinySeasonPassDefinition"]).json()
 
-        # print(self.season_pass_definition)
-
-        # for x in self.season_definition:
-        #     print(x)
-        # print(self.season_definition)
-
-        # print(self.place_hashes)
-
-        # with open('destinations.json', 'w') as out:
-        #     json.dump(self.destin_hashes, out)
-
-        # for x in self.activity_hashes:
-        #     print(x)
-
-        # destin_hashes = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]['DestinyDestinationDefinition'])
-        # self.dest_hashes = destin_hashes.json()
-        # This gets the name for the activity hash, will also contain the location hash
-        # for x in j2:
-            # print(j2[x]["destinationHash"])
-            # print(j2[x]["displayProperties"]['name'])
-
-        # for x in j3:
-        #     print(j3[x]["displayProperties"])
-
-        # t = requests.get(BASE_URL + "{0}/Profile/{1}/?components=CharacterActivities".format(platform, memID, charID), headers=my_header)
-        # j = t.json()
-        # print(t)
-
-        # User if offline for now, can let them update later
-        # if j["ErrorStatus"] != "Success":
-        #     print("offline!")
-
-        # print(j["Response"])
-
-        # for x in j["Response"]["characterActivities"]:
-        #     print(j["Response"]["characterActivities"][x])
-
-
-        self.RPC = Presence(RPC_CLIENT_ID)
-        self.updateThread = threading.Thread(target=self.doUpdate, name="Updater")
-        self.updateThread.daemon = True # Set to true to stop after program exits
-        self.start()
-        
     def printPresence(self):
         self.state.output()
 
@@ -461,8 +418,6 @@ class D2Presence:
             data2 = act
             # print("ACT IS: " + act)
 
-        # self.state.
-
         # if playlist activity do other stuff
         data3 = "33"
         data4 = "44"
@@ -480,8 +435,6 @@ class D2Presence:
         if(str(act) == "Deep Stone Crypt"):
             data1 = "Raid"
             self.state.Mode = "Raid"
-
-        # get location and sublocation here
 
         if data2 == "In Orbit" or place == "null" or destination == "null":
             data3 = "Patrolling Space"
@@ -502,36 +455,6 @@ class D2Presence:
 
         self.state.details = data1
         self.state.state = data2
-
-        # data4 = self.state.Race + " " + self.state.Gender + " " + self.state.Class + " - " + "Season Pass Level " + str(self.level)
-
-        # dataToReturn = [
-        #     # str(act),  # State
-        #     # str(act_type),      # Details
-        #     # "act",
-        #     # "act_type",
-        #     data1,
-        #     data2,
-        #     # "large image",
-        #     # "small image",
-        #     data3,
-        #     data4,
-        #     # maybe have some fireteam size info here?
-        #     data5,
-        #     data6,
-        #     data7,
-        # ]
-
-        # print(tempjson[dataToReturn[0]])
-        # for x in tempjson[dataToReturn[0]]:
-        #     print(x)
-
-        # print(injson['Response']["characterActivities"]["data"])
-
-    
-
-
-        # return dataToReturn
 
     def getActivitiesJSON(self):
         # t = requests.get(BASE_URL + "{0}/Profile/{1}/?components=CharacterActivities".format(platform, memID, charID), headers=my_header)
@@ -598,6 +521,7 @@ class D2Presence:
         starttime = time.time()
         success = True
         while success:
+            self.manThread.join() # wait for the manifest to be done before starting to update.
             success = self.update()
             time.sleep(15.0 - ((time.time() - starttime) % 15.0))
 
