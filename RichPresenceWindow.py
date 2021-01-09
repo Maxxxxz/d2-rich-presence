@@ -42,6 +42,8 @@ class Application(tk.Frame):
         # maybe I could start this at the beginning and make it asynchronous, then wait on the main thread until this is finished?
         self.startFresh = setup.start()
 
+        # self.pages[0].show()
+
         if self.startFresh:
             self.pages[1].show()
             messagebox.showinfo("New User", "It looks like you haven't used this application before.\nLet's start by getting some information.")
