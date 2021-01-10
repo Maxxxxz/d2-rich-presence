@@ -1,6 +1,6 @@
 import sys
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, ttk
 import Modules.Pages as Pages
 import Modules.presence as prz
 import setup
@@ -23,6 +23,9 @@ class Application(tk.Frame):
         master.resizable(width=False, height=False)               #resizable?
         tk.Frame.__init__(self, master, relief=tk.GROOVE)
         
+        # s = ttk.Style()
+        # s.theme_use("winxpblue")
+
         self.menubar = tk.Menu(self)
 
         self.contentFrame = tk.Frame(master, width=100, height=100)
@@ -44,13 +47,14 @@ class Application(tk.Frame):
 
         # self.pages[0].show()
 
+        master.config(menu=self.menubar)
+
         if self.startFresh:
             self.pages[1].show()
             messagebox.showinfo("New User", "It looks like you haven't used this application before.\nLet's start by getting some information.")
         else:
             self.pages[0].show()
 
-        master.config(menu=self.menubar)
 
         # self.bind_all("<Control-Key-0>", self.pages[0].show)    # main menu
         # self.bind_all("<Control-Key-1>", self.pages[1].show)    # Page 2
@@ -87,7 +91,7 @@ class Application(tk.Frame):
     def addContent(self, contentFrame=None):                        #add content to contentFrame here
         self.RPC = prz.D2Presence()
         self.pages.append(Pages.Menu(WIDTH, self.RPC))
-        self.pages.append(Pages.GetInfo(WIDTH, self.RPC))
+        self.pages.append(Pages.GetInfo(WIDTH, self.RPC, self))
 
 def handleArgs():
     pass
