@@ -1,9 +1,17 @@
 import tkinter as tk
 from tkinter import *
+import json
 
 import webbrowser
 
-MEMID_HELP_PAGE = "https://maxxxxz.github.io"
+MEMID_HELP_PAGE = "https://maxxxxz.github.io/Sandbox/DestinyMembershipID/"
+
+PLATFORM_DEFINITION = {
+    "PC": 3,
+    "Playstation": 2,
+    "XBox": 1,
+    "Stadia": 5
+}
 
 class Page(tk.Frame):
     def __init__(self):
@@ -31,10 +39,12 @@ class Menu(Page):
 #   First Load/Reset Page
 class GetInfo(Page):
 
-    def __init__(self, w, RPC):
+    def __init__(self, w, RPC, app):
         Page.__init__(self)
 
         self.PLATFORMS = ["PC", "Playstation", "XBox", "Stadia"]
+
+        self.app = app
 
         self.topLabel = tk.Label(self, text="Enter your information here.")
         self.topLabel.place(x=(w/2), y=25, anchor="center")  # Place label at top of screen
@@ -57,8 +67,8 @@ class GetInfo(Page):
         self.memHelpLabel.place(x=(w/2), y=135, anchor="center")
 
         self.idField = tk.Entry(self)
-        self.idField.place(x=(w/2), y=145, anchor="center")
-
+        self.idField.place(x=(w/2), y=165, anchor="center")
+        self.idField.focus_force()
 
 
         self.submit = tk.Button(self, text="Submit", command= self.onSubmit )
@@ -69,6 +79,29 @@ class GetInfo(Page):
 
     # validate info (check ID and memtype return valid player)
     def onSubmit(self):
-        print("platform is {}".format(self.curType.get()))
+        # print("platform is {}".format(self.curType.get()))
+        missingInfo = False
+        ID = self.idField.get()
+        plat = self.curType.get()
+        # print("platform is: {} while ID is {}".format(PLATFORM_DEFINITION[plat], ID))
+
+        if(ID == ""):
+            missingInfo = True
+
+        if(missingInfo):
+            messagebox.showerror(title="Missing Info", message="You are missing required information!")
+        else:
+            # Try to see if player exists using api, then save if success
+            data = {}
+            data["api-key"] = "7df97cc02219401fbfa6be6c26069b44",       # Should I grab this from github?
+            data["membership-type"] = PLATFORM_DEFINITION[plat]         # Just use the number
+            data["member-id"] = ID                                      # Keep as string
+
+            with open("./saved/info.json", "w") as f:
+                json.dump(data, f)
+            
+            self.app.pages[0].show()
+
+
 
 #   Make Pages for each system login (ie, pc page, ps page, xbox page, etc)
