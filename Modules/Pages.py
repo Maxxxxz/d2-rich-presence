@@ -1,6 +1,10 @@
 import tkinter as tk
 from tkinter import *
 
+import webbrowser
+
+MEMID_HELP_PAGE = "https://maxxxxz.github.io"
+
 class Page(tk.Frame):
     def __init__(self):
         tk.Frame.__init__(self)
@@ -45,8 +49,12 @@ class GetInfo(Page):
         self.typeBox.place(x=(w/2), y=85, anchor="center")
 
 
-        self.memLabel = tk.Label(self, text="What is your ID?")
+        self.memLabel = tk.Label(self, text="What is your Membership ID?")
         self.memLabel.place(x=(w/2), y=115, anchor="center")
+
+        self.memHelpLabel = tk.Label(self, text="How do I find this? (opens in browser)", fg="grey")
+        self.memHelpLabel.bind("<Button-1>", lambda e: self.openMemIDHelp())
+        self.memHelpLabel.place(x=(w/2), y=135, anchor="center")
 
         self.idField = tk.Entry(self)
         self.idField.place(x=(w/2), y=145, anchor="center")
@@ -55,6 +63,9 @@ class GetInfo(Page):
 
         self.submit = tk.Button(self, text="Submit", command= self.onSubmit )
         self.submit.place(x=(w/2), y=200, anchor="center")
+
+    def openMemIDHelp(self):
+        webbrowser.open(MEMID_HELP_PAGE)
 
     # validate info (check ID and memtype return valid player)
     def onSubmit(self):
