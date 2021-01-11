@@ -220,6 +220,10 @@ class RichPresenceState:
         else:
             self.FireteamMaxSize = 3
 
+    def getTextOut(self):
+        out = time.time()
+        return out
+
     def output(self):
         # print("key = {}".format(setup.APIKEY))
         print("LocalizedTimeStarted = {}".format(self.LocalizedTimeStarted))
@@ -243,7 +247,7 @@ class RichPresenceState:
 
 class D2Presence:
     def __init__(self):
-        print("init presence")
+        # print("init presence")
         self.state = RichPresenceState()
 
         self.manifest = None
@@ -260,13 +264,15 @@ class D2Presence:
     def getManifest(self):
         man = requests.get(BASE_URL + "Manifest/")
         self.manifest = man.json()
-        self.activity_hashes = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyActivityDefinition"]).json()
-        # self.mode_type = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyActivityModeTypeDefinition"]).json()
-        self.place_hashes = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyPlaceDefinition"]).json()
-        self.destin_hashes = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyDestinationDefinition"]).json()
-        self.activity_type_hashes = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinyActivityTypeDefinition"]).json()
-        # self.season_definition = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinySeasonDefinition"]).json()
-        self.season_pass_definition = requests.get("http://bungie.net" + self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]["DestinySeasonPassDefinition"]).json()
+        self.quickWCPaths = self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]
+        
+        self.activity_hashes = requests.get("http://bungie.net" + self.quickWCPaths["DestinyActivityDefinition"]).json()
+        # self.mode_type = requests.get("http://bungie.net" + self.quickWCPaths["DestinyActivityModeTypeDefinition"]).json()
+        self.place_hashes = requests.get("http://bungie.net" + self.quickWCPaths["DestinyPlaceDefinition"]).json()
+        self.destin_hashes = requests.get("http://bungie.net" + self.quickWCPaths["DestinyDestinationDefinition"]).json()
+        self.activity_type_hashes = requests.get("http://bungie.net" + self.quickWCPaths["DestinyActivityTypeDefinition"]).json()
+        # self.season_definition = requests.get("http://bungie.net" + self.quickWCPaths["DestinySeasonDefinition"]).json()
+        self.season_pass_definition = requests.get("http://bungie.net" + self.quickWCPaths["DestinySeasonPassDefinition"]).json()
 
     def printPresence(self):
         self.state.output()
@@ -283,7 +289,7 @@ class D2Presence:
     def getCurrentActivity(self):
         # print("current activity")
         # data = ["details", "state", "Location - sublocation", "gender class - Season Pass level x"]
-        data = ["Nessus Orbit - Raid", "fucking up calus", "Nessus Orbit - Raid", "Awoken Female - Season level 69"]
+        # data = ["Nessus Orbit - Raid", "fucking up calus", "Nessus Orbit - Raid", "Awoken Female - Season level 69"]
 
         j = self.getActivitiesJSON()
 
@@ -337,13 +343,13 @@ class D2Presence:
         except:
             pass
 
-        if current_mode_type:
-            print("epic")
+        # if current_mode_type:
+        #     print(current_mode_type)
 
-        print("activity hash = " + str(activity_hash))
-        print("current mode hash = " + str(current_mode_hash))
-        print("current mode type = " + str(current_mode_type))
-        print("playlist activity hash = " + str(playlist_activity_hash))
+        # print("activity hash = " + str(activity_hash))
+        # print("current mode hash = " + str(current_mode_hash))
+        # print("current mode type = " + str(current_mode_type))
+        # print("playlist activity hash = " + str(playlist_activity_hash))
 
         for x in self.activity_type_hashes:
             if str(x) == str(current_mode_hash):
@@ -385,10 +391,10 @@ class D2Presence:
         # print(activity_hash)
         # print(self.activity_hashes[activity_hash])
 
-        print("act = " + str(act))
-        print("act_type = " + str(act_type))
-        print("pl_act = " + str(pl_act))
-        print("pl_act_hash = " + str(pl_act_hash))
+        # print("act = " + str(act))
+        # print("act_type = " + str(act_type))
+        # print("pl_act = " + str(pl_act))
+        # print("pl_act_hash = " + str(pl_act_hash))
 
         # data = ["details", "state", "Location - sublocation", "gender class - Season Pass level x"]
         
