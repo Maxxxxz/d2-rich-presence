@@ -23,18 +23,26 @@ class Page(tk.Frame):
 class Menu(Page):
     def __init__(self, w, RPC):
         Page.__init__(self)
-        label = tk.Label(self, text="Max's Destiny 2 Rich Presence App")
-        label.place(x=(w/2), y=25, anchor="center")  # Place label at top of screen
-        updateButton = tk.Button(self, text="Start", 
+        # label = tk.Label(self, text="Max's Destiny 2 Rich Presence App")
+        # label.place(x=(w/2), y=25, anchor="center")  # Place label at top of screen
+        startUpdateButton = tk.Button(self, text="Start Updating", 
             command=RPC.startUpdate
             )
-        updateButton.place(x=(w/2), y=(w/2), anchor="center")
+        # startUpdateButton.place(x=(w/2), y=(w/2), anchor="center")
+        startUpdateButton.pack(side=BOTTOM)
+
+        # Force update button?
+
+        stateTextBox = tk.Text(self, state=DISABLED)
+        stateTextBox.pack(side=TOP)
+        # stateTextBox.config(state=DISABLED)
+        RPC.setUpdateBox(stateTextBox)
 
         # getinfoButton = tk.Button(self, text="get info", command= RPC.test)
         # getinfoButton.place(x=(w/2), y=(w/2) - 50, anchor="center")
 
-        printPresence = tk.Button(self, text="print presence", command= RPC.printPresence)
-        printPresence.place(x=(w/2), y=(w/2) - 100, anchor="center")
+        # printPresence = tk.Button(self, text="print presence", command= RPC.printPresence)
+        # printPresence.place(x=(w/2), y=(w/2) - 100, anchor="center")
 
 #   First Load/Reset Page
 class GetInfo(Page):
