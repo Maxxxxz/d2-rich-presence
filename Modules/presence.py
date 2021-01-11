@@ -285,6 +285,8 @@ class D2Presence:
         # if valid user
         self.updateThread.start()
 
+    def setUpdateBox(self, updatebox):
+        self.updateBox = updatebox
 
     def getCurrentActivity(self):
         # print("current activity")
@@ -529,6 +531,10 @@ class D2Presence:
         while success:
             self.manThread.join() # wait for the manifest to be done before starting to update.
             success = self.update()
+            self.updateBox.config(state='normal')
+            self.updateBox.delete(1.0,"end")
+            self.updateBox.insert(1.0, self.state.getTextOut())
+            self.updateBox.config(state='disabled')
             time.sleep(15.0 - ((time.time() - starttime) % 15.0))
 
     def update(self):
