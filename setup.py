@@ -3,7 +3,6 @@ from os import path
 
 import json
 
-
 APIKEY = None
 MEMBERSHIPTYPE = None
 MEMBERID = None
@@ -14,10 +13,7 @@ def start():
     if path.exists("./saved/info.json"):
         return getInfoJson()
     else:
-        print("no save info found!")
-        
-
-
+        return True
 
 def getInfoJson():
     
