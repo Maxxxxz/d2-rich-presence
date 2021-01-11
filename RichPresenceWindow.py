@@ -1,4 +1,5 @@
 import sys
+import os
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import Modules.Pages as Pages
@@ -65,8 +66,9 @@ class Application(tk.Frame):
 
         self.menus.append(tk.Menu(self.menubar, tearoff=0))
 
-        self.menubar.add_cascade(label="File", menu=menus[0])
+        self.menubar.add_cascade(label="App", menu=menus[0])
 
+        menus[0].add_command(label="Reset", command=reset)
         menus[0].add_command(label="Exit", command=self.master.quit)
 
         self.menus.append(tk.Menu(self.menubar, tearoff=0))
@@ -96,9 +98,25 @@ class Application(tk.Frame):
 def handleArgs():
     pass
 
-if __name__ == "__main__":
-    handleArgs()
+def reset():
+    res = messagebox.askyesno("Reset application?", message="This action will reset your saved info, including your membership ID and platform. You will need to re-open the application after you reset.")
+    if res:
+        _reset()
+        root.destroy()
+    else:
+        pass
+
+def _reset():
+    if os.path.exists("./saved/info.json"):
+        os.remove("./saved/info.json")
+
+def run():
+    global root
     root = tk.Tk()
     application = Application(root)
     application.pack()
     root.mainloop()
+
+if __name__ == "__main__":
+    handleArgs()
+    run()
