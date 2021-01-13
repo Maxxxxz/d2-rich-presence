@@ -230,7 +230,30 @@ class RichPresenceState:
         #     self.FireteamMaxSize = 3
 
     def getTextOut(self):
-        out = time.time()
+        # out = time.time()
+
+        stringArr = []
+        stringArr.append("LocalizedTimeStarted = {}".format(self.LocalizedTimeStarted))
+        stringArr.append("Level = {}".format(self.Level))
+        stringArr.append("details = {}".format(self.details))
+        stringArr.append("state = {}".format(self.state))
+        stringArr.append("start = {}".format(self.start))
+        stringArr.append("large_text = {}".format(self.large_text))
+        stringArr.append("small_text = {}".format(self.small_text))
+        stringArr.append("large_image = {}".format(self.large_image))
+        stringArr.append("small_image = {}".format(self.small_image))
+        stringArr.append("ActivityName = {}".format(self.ActivityName))
+        stringArr.append("Location = {}".format(self.Location))
+        stringArr.append("SubLocation = {}".format(self.SubLocation))
+        stringArr.append("Race = {}".format(self.Race))
+        stringArr.append("Gender = {}".format(self.Gender))
+        stringArr.append("Class = {}".format(self.Class))
+        stringArr.append("Mode = {}".format(self.Mode))
+        stringArr.append("FireteamSize = {}".format(self.FireteamSize))
+        stringArr.append("FireteamMaxSize = {}".format(self.FireteamMaxSize))
+        stringArr.append("Hiding Fireteam = {}".format(self.hideFT))
+
+        out = '\n'.join(stringArr)
         return out
 
     def output(self):
