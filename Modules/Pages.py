@@ -23,26 +23,94 @@ class Page(tk.Frame):
 class Menu(Page):
     def __init__(self, w, RPC):
         Page.__init__(self)
+        self.RPC = RPC
+        self.hideFT = True
+        self.max = 6
         # label = tk.Label(self, text="Max's Destiny 2 Rich Presence App")
         # label.place(x=(w/2), y=25, anchor="center")  # Place label at top of screen
-        startUpdateButton = tk.Button(self, text="Start Updating", 
-            command=RPC.startUpdate
+        bottomFrame = tk.Frame(self, height=250)
+        # bottomFrame.grid_configure()
+
+        
+
+        
+        self.startUpdateButton = tk.Button(self, text="Start Updating", 
+            command=self.updatePressed
             )
         # startUpdateButton.place(x=(w/2), y=(w/2), anchor="center")
-        startUpdateButton.pack(side=BOTTOM)
+        self.startUpdateButton.pack(side=BOTTOM)
+        bottomFrame.pack(side=BOTTOM)
+
+        ###############
+
+        self.toggleFTButton = tk.Button(bottomFrame, text="Fireteam Size: Hidden", command=self.toggleHideFT)
+        self.toggleFTButton.grid(row=1, column=2)
+
+        vcmdCUR = (self.register(self.validateCur), '%P')
+
+        self.curSizeSB = tk.Spinbox(bottomFrame, from_=1, to_=12, increment=1, validate="key", validatecommand=vcmdCUR, width=5)
+        self.curSizeSB.grid(row=1, column=3)
+
+        slashLabel = tk.Label(bottomFrame, text="/")
+        slashLabel.grid(row=1, column=4)
+
+        vcmdMAX = (self.register(self.validateMax), '%P')
+        var = tk.IntVar(self)
+        var.set(self.max)
+
+        self.maxSizeSB = tk.Spinbox(bottomFrame, from_=1, to_=12, increment=1, validate="key", validatecommand=vcmdMAX, textvariable=var, width=5)
+        self.maxSizeSB.grid(row=1, column=5)
+
+        # self.startUpdateButton.grid(row=3, column=3)
+
+        ###############
 
         # Force update button?
 
         stateTextBox = tk.Text(self, state=DISABLED)
         stateTextBox.pack(side=TOP)
         # stateTextBox.config(state=DISABLED)
-        RPC.setUpdateBox(stateTextBox)
+        self.RPC.setUpdateBox(stateTextBox)
 
         # getinfoButton = tk.Button(self, text="get info", command= RPC.test)
         # getinfoButton.place(x=(w/2), y=(w/2) - 50, anchor="center")
 
         # printPresence = tk.Button(self, text="print presence", command= RPC.printPresence)
         # printPresence.place(x=(w/2), y=(w/2) - 100, anchor="center")
+    
+    def updatePressed(self):
+        self.RPC.startUpdate()
+        self.startUpdateButton.config(state=DISABLED)
+
+    def validateCur(self, cur):
+        if cur.isnumeric() and (cur <= str(self.max)):
+            self.RPC.state.setSize(cur)
+            return True
+        # else:
+        return False
+
+    def validateMax(self, cur):
+        if cur.isnumeric():
+            self.max = cur
+            self.RPC.state.setMaxSize(self.max)
+            self.curSizeSB.config(to_=self.max)
+            return True
+        else:
+            return False
+
+    def toggleHideFT(self):
+        self.hideFT = not self.hideFT
+        self.RPC.state.hideFT = self.hideFT
+
+        if self.hideFT:
+            self.toggleFTButton.config(text="Fireteam Size: Hidden")
+        else:
+            self.toggleFTButton.config(text="Fireteam Size: Visible")
+
+        # Should I change the fireteam spinboxes to -1?
+        # if self.hideFT:
+        #     self.
+
 
 #   First Load/Reset Page
 class GetInfo(Page):

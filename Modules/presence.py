@@ -187,7 +187,16 @@ class RichPresenceState:
         # Fireteam Size Limits (MUST be numbers; Fireteam size is ALWAYS at least 1)
         self.FireteamSize = 1
         self.FireteamMaxSize = 3
+        self.hideFT = True
     
+    def setSize(self, newSize):
+        self.FireteamSize = newSize
+        print("set size!")
+
+    def setMaxSize(self, newSize):
+        self.FireteamMaxSize = newSize
+        print("set max size!")
+
     # Add more extrapolation stuff like europa name stuff
     def extrapolate(self):
         if self.details == "IronBannerControl":
@@ -212,13 +221,13 @@ class RichPresenceState:
 
         # Change FireteamMaxSize based on activity; further change based on crucible mode
         # in orbit, max is 12 for private crucible
-        if(self.Mode == "Control" or
-           self.Mode == "IronBannerControl" or
-           self.Mode == "Raid"
-           ):
-            self.FireteamMaxSize = 6
-        else:
-            self.FireteamMaxSize = 3
+        # if(self.Mode == "Control" or
+        #    self.Mode == "IronBannerControl" or
+        #    self.Mode == "Raid"
+        #    ):
+        #     self.FireteamMaxSize = 6
+        # else:
+        #     self.FireteamMaxSize = 3
 
     def getTextOut(self):
         out = time.time()
@@ -594,6 +603,10 @@ class D2Presence:
         
         if not doDefault:
             self.state.extrapolate()
+            if self.state.hideFT:
+                size = None#[int(0), int(0)]
+            else:
+                size = [int(self.state.FireteamSize),int(self.state.FireteamMaxSize)]
             self.RPC.update(
             details=self.state.details,
             state=self.state.state,
@@ -606,7 +619,7 @@ class D2Presence:
             small_image=self.state.small_image,
             # small_image=self.getSmallImage(self.state.small_text),
             # party_id="00",  # can't initiate a join
-            party_size=[int(self.state.FireteamSize),int(self.state.FireteamMaxSize)],
+            party_size=size,
             # join="",
             # match="match test",
             )
