@@ -3,6 +3,7 @@ from tkinter import *
 import json
 
 import webbrowser
+import os
 
 MEMID_HELP_PAGE = "https://maxxxxz.github.io/Sandbox/DestinyMembershipID/"
 
@@ -169,11 +170,19 @@ class GetInfo(Page):
         else:
             # Try to see if player exists using api, then save if success
             data = {}
-            data["api-key"] = "7df97cc02219401fbfa6be6c26069b44",       # Should I grab this from github?
+            KEY = "7df97cc02219401fbfa6be6c26069b44"
+            data["api-key"] = KEY,       # Should I grab this from github?
             data["membership-type"] = PLATFORM_DEFINITION[plat]         # Just use the number
             data["member-id"] = ID                                      # Keep as string
 
-            with open("./saved/info.json", "w") as f:
+            path = "./saved/info.json"
+
+            if not os.path.exists(path):
+                os.makedirs("saved", exist_ok=True)
+                file = open(path, 'w+')
+                file.close()
+
+            with open(path, "w") as f:
                 json.dump(data, f)
             
             self.app.pages[0].show()
