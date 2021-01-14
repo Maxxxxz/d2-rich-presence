@@ -13,6 +13,7 @@ def start():
     if path.exists("./saved/info.json"):
         return getInfoJson()
     else:
+        getInfoJson()
         return True
 
 def getInfoJson():
@@ -27,7 +28,7 @@ def getInfoJson():
         with open("./saved/info.json") as f:
             data = json.load(f)
     
-            APIKEY = data["api-key"]
+            APIKEY = data["api-key"][0]
 
         if APIKEY == "" or None:
             print("malformed API Key") # more info on fixing; close application
