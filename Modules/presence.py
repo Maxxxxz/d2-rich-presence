@@ -593,6 +593,7 @@ class D2Presence:
                 except:
                     print("failed get current character!")
                     loops = loops + 1
+                    time.sleep(1)
 
         # if failed 3 times, set useDefault to True
         if loops == MAX_ATTEMPTS:
@@ -610,6 +611,7 @@ class D2Presence:
                 except:
                     print("failed get current activity!")
                     loops = loops + 1
+                    time.sleep(1)
         
             # if failed 3 times, set useDefault to True
             if loops == MAX_ATTEMPTS:
