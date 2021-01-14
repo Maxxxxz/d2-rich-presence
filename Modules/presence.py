@@ -8,19 +8,17 @@ import operator
 import threading
 
 import setup
+setup.getInfoJson()
 
 BASE_URL = "https://bungie.net/Platform/Destiny2/"
-API_KEY = "7df97cc02219401fbfa6be6c26069b44"
+API_KEY = setup.APIKEY
 RPC_CLIENT_ID = "777656520518270986"
 
-STEAM_ID_LOOKUP = ""
-
-TEST_ID64 = "76561198020873129"
-
-platform = 3
-memID = "4611686018483845808"
-charID = 0
+platform = setup.MEMBERSHIPTYPE
+memID = setup.MEMBERID
 my_header = {"X-API-Key": API_KEY}
+
+MAX_ATTEMPTS = 5
 
 class raceTypes(Enum):
     Human = 0
@@ -498,12 +496,13 @@ class D2Presence:
 
     def getActivitiesJSON(self):
         # t = requests.get(BASE_URL + "{0}/Profile/{1}/?components=CharacterActivities".format(platform, memID, charID), headers=my_header)
-        t = requests.get(BASE_URL + "{0}/Profile/{1}/?components=204".format(platform, memID, charID), headers=my_header)
+        print(BASE_URL + "{0}/Profile/{1}/?components=204".format(platform, memID))
+        t = requests.get(BASE_URL + "{0}/Profile/{1}/?components=204".format(platform, memID), headers=my_header)
         j = t.json()
         return j
 
     def getAccountLevel(self):
-        t = requests.get(BASE_URL + "{0}/Profile/{1}/?components=202".format(platform, memID, charID), headers=my_header)
+        t = requests.get(BASE_URL + "{0}/Profile/{1}/?components=202".format(platform, memID), headers=my_header)
 
         # self.accjson = t.json()
         # with open('progression.json', 'w') as out:
@@ -530,7 +529,7 @@ class D2Presence:
         return str(normal), str(prestige)
 
     def getCurrentCharacter(self):
-        t = requests.get(BASE_URL + "{0}/Profile/{1}/?components=200".format(platform, memID, charID), headers=my_header)
+        t = requests.get(BASE_URL + "{0}/Profile/{1}/?components=200".format(platform, memID), headers=my_header)
         temp = t.json()["Response"]["characters"]["data"]
         
         # Find most recent "datelastplayed" for current player
@@ -583,32 +582,37 @@ class D2Presence:
 
         loops = 0
 
+        # self.getCurrentCharacter()
+        # self.getCurrentActivity()
+
         if not useDefault:
             res = None
-            while res is None and loops < 3:
+            while res is None and loops < MAX_ATTEMPTS:
                 try:
                     res = self.getCurrentCharacter()
                 except:
-                    print("failed!")
+                    print("failed get current character!")
                     loops = loops + 1
 
         # if failed 3 times, set useDefault to True
-        if loops == 3:
+        if loops == MAX_ATTEMPTS:
             useDefault = True
 
         loops = 0
 
+        # self.getCurrentActivity()
+
         if not useDefault:
             res = None
-            while res is None and loops < 3:
+            while res is None and loops < MAX_ATTEMPTS:
                 try:
                     res = self.getCurrentActivity()
                 except:
-                    print("failed!")
+                    print("failed get current activity!")
                     loops = loops + 1
         
             # if failed 3 times, set useDefault to True
-            if loops == 3:
+            if loops == MAX_ATTEMPTS:
                 useDefault = True
 
         # res = self.getCurrentActivity()
