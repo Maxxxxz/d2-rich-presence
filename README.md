@@ -34,7 +34,19 @@ git clone https://github.com/Maxxxxz/d2-rich-presence.git
 python RichPresenceWindow.py
 ```
 
+# To create the Executable
+
+```bash
+pyinstaller --onefile .\RichPresenceWindow.py
+```
+
+# To Do
+
+* Create a Virtual Environment to (hopefully) lower exe size
+
 # Dependencies
 
 * Python (building this with 3.8.3)
     * PyPresence
+    * PyInstaller (to build exe)
+    * ...
