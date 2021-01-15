@@ -6,6 +6,7 @@ import json
 APIKEY = None
 MEMBERSHIPTYPE = None
 MEMBERID = None
+LANG = "en"
 # CURRENTSEASONHASH = None
 
 def start():
@@ -21,6 +22,7 @@ def getInfoJson():
     global APIKEY
     global MEMBERSHIPTYPE
     global MEMBERID
+    global LANG
     
     partialInfo = False
     

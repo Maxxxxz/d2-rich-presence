@@ -292,17 +292,53 @@ class D2Presence:
         self.start()
         
     def getManifest(self):
-        man = requests.get(BASE_URL + "Manifest/")
+
+        man = None
+        loops = 0
+        while man is None and loops < MAX_ATTEMPTS:
+            try:
+                man = requests.get(BASE_URL + "Manifest/")
+            except:
+                print("failed to get manifest!")
+                loops = loops + 1
+                time.sleep(1)
+
+        # man = requests.get(BASE_URL + "Manifest/")
         self.manifest = man.json()
         self.quickWCPaths = self.manifest["Response"]["jsonWorldComponentContentPaths"]["en"]
         
-        self.activity_hashes = requests.get("http://bungie.net" + self.quickWCPaths["DestinyActivityDefinition"]).json()
+        # Do something with status later
+        self.activity_hashes, status = self.tryGetFile("DestinyActivityDefinition")
+
+
+        self.place_hashes, status = self.tryGetFile("DestinyPlaceDefinition")
+        
+        
+        self.destin_hashes, status = self.tryGetFile("DestinyDestinationDefinition")
+        
+        
+        self.activity_type_hashes, status = self.tryGetFile("DestinyActivityTypeDefinition")
+        
+        
+        self.season_pass_definition, status = self.tryGetFile("DestinySeasonPassDefinition")
+        
         # self.mode_type = requests.get("http://bungie.net" + self.quickWCPaths["DestinyActivityModeTypeDefinition"]).json()
-        self.place_hashes = requests.get("http://bungie.net" + self.quickWCPaths["DestinyPlaceDefinition"]).json()
-        self.destin_hashes = requests.get("http://bungie.net" + self.quickWCPaths["DestinyDestinationDefinition"]).json()
-        self.activity_type_hashes = requests.get("http://bungie.net" + self.quickWCPaths["DestinyActivityTypeDefinition"]).json()
         # self.season_definition = requests.get("http://bungie.net" + self.quickWCPaths["DestinySeasonDefinition"]).json()
-        self.season_pass_definition = requests.get("http://bungie.net" + self.quickWCPaths["DestinySeasonPassDefinition"]).json()
+
+    def tryGetFile(self, fileName):
+        obj = None
+        loops = 0
+        status = True
+        while obj is None and loops < MAX_ATTEMPTS:
+            try:
+                obj = requests.get("http://bungie.net" + self.quickWCPaths[fileName]).json()
+                status = True
+            except:
+                print("failed to get {}}!".format(fileName))
+                status = False
+                loops = loops + 1
+                time.sleep(1)
+        return (obj, status)
 
     def printPresence(self):
         self.state.output()
