@@ -11,12 +11,19 @@ import setup
 setup.getInfoJson()
 
 BASE_URL = "https://bungie.net/Platform/Destiny2/"
-API_KEY = setup.APIKEY
-RPC_CLIENT_ID = "777656520518270986"
+# API_KEY = setup.APIKEY
+# RPC_CLIENT_ID = setup.RPCID
 
-platform = setup.MEMBERSHIPTYPE
-memID = setup.MEMBERID
-my_header = {"X-API-Key": API_KEY}
+# platform = setup.MEMBERSHIPTYPE
+# memID = setup.MEMBERID
+# my_header = {"X-API-Key": API_KEY}
+
+API_KEY = None
+RPC_CLIENT_ID = None
+
+platform = None
+memID = None
+my_header = None
 
 MAX_ATTEMPTS = 5
 
@@ -286,10 +293,9 @@ class D2Presence:
         self.manThread.daemon = True
         self.manThread.start()
 
-        self.RPC = Presence(RPC_CLIENT_ID)
+        self.RPC = None # moved to initializing later
         self.updateThread = threading.Thread(target=self.doUpdate, name="Updater")
         self.updateThread.daemon = True # Set to true to stop after program exits
-        self.start()
         
     def getManifest(self):
 
@@ -348,6 +354,22 @@ class D2Presence:
 
     def startUpdate(self):
         print("updating information...")
+
+        global API_KEY
+        global RPC_CLIENT_ID
+        global platform
+        global memID
+        global my_header
+
+        API_KEY = setup.APIKEY
+        RPC_CLIENT_ID = setup.RPCID
+        platform = setup.MEMBERSHIPTYPE
+        memID = setup.MEMBERID
+        my_header = {"X-API-Key": API_KEY}
+
+        self.RPC = Presence(RPC_CLIENT_ID)
+        self.start()
+
         # if valid user
         self.updateThread.start()
 
@@ -565,7 +587,14 @@ class D2Presence:
         return str(normal), str(prestige)
 
     def getCurrentCharacter(self):
+
+        print("----------------------")
+        print(BASE_URL + "{0}/Profile/{1}/?components=200".format(platform, memID))
+        print(my_header)
+        print("----------------------")
+
         t = requests.get(BASE_URL + "{0}/Profile/{1}/?components=200".format(platform, memID), headers=my_header)
+
         temp = t.json()["Response"]["characters"]["data"]
         
         # Find most recent "datelastplayed" for current player
@@ -593,10 +622,12 @@ class D2Presence:
         
 
     def doUpdate(self):
+
         starttime = time.time()
+
         success = True
+        self.manThread.join() # wait for the manifest to be done before starting to update.
         while success:
-            self.manThread.join() # wait for the manifest to be done before starting to update.
             success = self.update()
             self.updateBox.config(state='normal')
             self.updateBox.delete(1.0,"end")
@@ -626,8 +657,9 @@ class D2Presence:
             while res is None and loops < MAX_ATTEMPTS:
                 try:
                     res = self.getCurrentCharacter()
-                except:
+                except Exception as e:
                     print("failed get current character!")
+                    print(e)
                     loops = loops + 1
                     time.sleep(1)
 
@@ -644,8 +676,9 @@ class D2Presence:
             while res is None and loops < MAX_ATTEMPTS:
                 try:
                     res = self.getCurrentActivity()
-                except:
+                except Exception as e:
                     print("failed get current activity!")
+                    print(e)
                     loops = loops + 1
                     time.sleep(1)
         
