@@ -2,10 +2,12 @@ import os.path
 from os import path
 
 import json
+import requests
 
 APIKEY = None
 MEMBERSHIPTYPE = None
 MEMBERID = None
+RPCID = None
 LANG = "en"
 # CURRENTSEASONHASH = None
 
@@ -23,17 +25,27 @@ def getInfoJson():
     global MEMBERSHIPTYPE
     global MEMBERID
     global LANG
+    global RPCID
     
     partialInfo = False
     
     try:
+        res = requests.get("https://maxxxxz.github.io/software/keys/publickeys.json")
+        if res.status_code == 200:
+            j = res.json()["d2-rpc"]
+            APIKEY = j["bungie-api-key"]
+            RPCID = j["rpc-client-key"]
+    except:
+        pass # should only happen if my website is down or the json goes away
+
+    try:
         with open("./saved/info.json") as f:
             data = json.load(f)
     
-            APIKEY = data["api-key"][0]
+            # APIKEY = data["api-key"][0]
 
-        if APIKEY == "" or None:
-            print("malformed API Key") # more info on fixing; close application
+        # if APIKEY == "" or None:
+        #     print("malformed API Key") # more info on fixing; close application
 
         MEMBERSHIPTYPE = data["membership-type"]
         
