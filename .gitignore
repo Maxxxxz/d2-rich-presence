@@ -143,3 +143,4 @@ dmypy.json
 cython_debug/
 saved/info.json
 my_saved/info.json
+notes.txt
